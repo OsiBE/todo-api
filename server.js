@@ -1,5 +1,5 @@
 var express = require('express');
-var bodyParser = require ('body-parser');
+var bodyParser = require('body-parser');
 var _ = require('underscore');
 var app = express();
 var PORT = process.env.PORT || 3000;
@@ -17,20 +17,28 @@ app.get('/todos', function(req, res) {
 	var filteredTodos = todos;
 
 	if (queryParams.hasOwnProperty('completed') && queryParams.completed === 'true') {
-		filteredTodos = _.where(todos, {"completed":true});
+		filteredTodos = _.where(todos, {
+			"completed": true
+		});
 	} else if (queryParams.hasOwnProperty('completed') && queryParams.completed === 'false') {
-		filteredTodos = _.where(todos, {"completed":false});
+		filteredTodos = _.where(todos, {
+			"completed": false
+		});
 	}
 
 	if (queryParams.hasOwnProperty('q') && queryParams.q.length > 0) {
-		filteredTodos = _.filter(filteredTodos, function(todo){return (todo.description.toLowerCase().indexOf(queryParams.q.toLowerCase()) > -1)});
+		filteredTodos = _.filter(filteredTodos, function(todo) {
+			return (todo.description.toLowerCase().indexOf(queryParams.q.toLowerCase()) > -1)
+		});
 	}
 	res.json(filteredTodos);
 });
 
 app.get('/todos/:id', function(req, res) {
 	var todoId = parseInt(req.params.id, 10);
-	var match = _.findWhere(todos, {id: todoId});
+	var match = _.findWhere(todos, {
+		id: todoId
+	});
 	/*var match;
 	todos.forEach(function(todo) {
 		if (todo.id === todoId) {
@@ -66,12 +74,16 @@ app.post('/todos', function(req, res) {
 app.delete('/todos/:id', function(req, res) {
 	var todoId = parseInt(req.params.id, 10);
 	console.log("trying to delete todo with id " + todoId);
-	var match = _.findWhere(todos, {id: todoId});
+	var match = _.findWhere(todos, {
+		id: todoId
+	});
 	if (todoId && match) {
 		todos = _.without(todos, match);
 		res.json(match);
 	} else {
-		res.status(404).json({"error": "no todo found with that id"});
+		res.status(404).json({
+			"error": "no todo found with that id"
+		});
 	}
 });
 
@@ -80,10 +92,14 @@ app.put('/todos/:id', function(req, res) {
 	var validAttributes = {};
 	var todoId = parseInt(req.params.id, 10);
 	console.log("trying to delete todo with id " + todoId);
-	var match = _.findWhere(todos, {id: todoId});
+	var match = _.findWhere(todos, {
+		id: todoId
+	});
 
 	if (!match) {
-		return res.send(404).json({"error": "no todo found with that id"});
+		return res.send(404).json({
+			"error": "no todo found with that id"
+		});
 	}
 
 	if (body.hasOwnProperty('completed') && _.isBoolean(body.completed)) {
@@ -100,9 +116,9 @@ app.put('/todos/:id', function(req, res) {
 
 	_.extend(match, validAttributes);
 	res.json(match);
-	
+
 });
 
-app.listen(PORT, function(){
+app.listen(PORT, function() {
 	console.log("express listening on " + PORT + "!");
 });
