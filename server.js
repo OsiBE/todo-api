@@ -14,8 +14,29 @@ app.get('/', function(req, res) {
 });
 
 app.get('/todos', function(req, res) {
-	var queryParams = req.query;
-	var filteredTodos = todos;
+	var query = req.query;
+	var where = {};
+
+	if (query.hasOwnProperty('completed') && query.completed === 'true') {
+		where.completed = true;
+	} else if (query.hasOwnProperty('completed') && query.completed === 'false') {
+		where.completed = false;
+	}
+
+	if (query.hasOwnProperty('q') && query.q.length > 0) {
+		where.description = {$like: '%' + query.q + '%'};
+	}
+
+	db.todo.findAll({where: where}).then(function(todos){
+		if (todos) {
+			res.json(todos);
+		} else {
+			res.status(404).send('no item with that ID found!');
+		}
+	}, function(error) {
+		res.status(500).send();
+	});
+	/*var filteredTodos = todos;
 
 	if (queryParams.hasOwnProperty('completed') && queryParams.completed === 'true') {
 		filteredTodos = _.where(todos, {
@@ -31,21 +52,11 @@ app.get('/todos', function(req, res) {
 		filteredTodos = _.filter(filteredTodos, function(todo) {
 			return (todo.description.toLowerCase().indexOf(queryParams.q.toLowerCase()) > -1)
 		});
-	}
-	res.json(filteredTodos);
+	}*/
 });
 
 app.get('/todos/:id', function(req, res) {
 	var todoId = parseInt(req.params.id, 10);
-	/*var match = _.findWhere(todos, {
-		id: todoId
-	});*/
-	/*var match;
-	todos.forEach(function(todo) {
-		if (todo.id === todoId) {
-			match = todo;
-		}
-	});*/
 
 	db.todo.findById(todoId).then(function(todo){
 		if (!!todo) {
@@ -56,15 +67,6 @@ app.get('/todos/:id', function(req, res) {
 	}, function(error) {
 		res.status(500).json(error);
 	});
-
-	/*if (match) {
-		res.json(match);
-	} else {
-		res.status(404).send();
-	}*/
-	//res.status(404).send();
-	//res.send('Asking for todo with id of '+ req.params.id);
-	//res.json(todos[req.params.id-1]);
 });
 
 
@@ -77,16 +79,6 @@ app.post('/todos', function(req, res) {
 	}, function(error) {
 		res.status(400).json(error);
 	});
-	/*if (!_.isBoolean(body.completed) || !_.isString(body.description) || body.description.trim().length === 0) {
-		console.log("Bad request!");
-		return res.status(400).send();
-	}
-	console.log("Good request... proceeding!");
-	body.description = body.description.trim();
-	body.id = todoNextId;
-	todoNextId++;
-	todos.push(body);
-	res.json(body);*/
 });
 
 app.delete('/todos/:id', function(req, res) {
