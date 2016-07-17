@@ -37,9 +37,9 @@ app.get('/todos', function(req, res) {
 
 app.get('/todos/:id', function(req, res) {
 	var todoId = parseInt(req.params.id, 10);
-	var match = _.findWhere(todos, {
+	/*var match = _.findWhere(todos, {
 		id: todoId
-	});
+	});*/
 	/*var match;
 	todos.forEach(function(todo) {
 		if (todo.id === todoId) {
@@ -47,11 +47,21 @@ app.get('/todos/:id', function(req, res) {
 		}
 	});*/
 
-	if (match) {
+	db.todo.findById(todoId).then(function(todo){
+		if (!!todo) {
+			res.json(todo.toJSON());
+		} else {
+			res.status(404).send('no item with that ID found!');
+		}
+	}, function(error) {
+		res.status(500).json(error);
+	});
+
+	/*if (match) {
 		res.json(match);
 	} else {
 		res.status(404).send();
-	}
+	}*/
 	//res.status(404).send();
 	//res.send('Asking for todo with id of '+ req.params.id);
 	//res.json(todos[req.params.id-1]);
