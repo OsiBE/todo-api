@@ -14,13 +14,5 @@ module.exports = function(sequelize, DataTypes) {
          allowNull: false,
          defaultValue: false
       }
-   }, {
-      validate: {
-         descriptionIsString: function() {
-            if (!_.isString(this.description)) {
-               throw new Error('Description must be string.')
-            }
-         }
-      }
    });
 };
